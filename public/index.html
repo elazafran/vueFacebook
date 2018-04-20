@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
+<script  src="https://code.jquery.com/jquery-1.12.4.js"  integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="  crossorigin="anonymous"></script> 
+ 
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<link rel="stylesheet" href="css/styles.css">
+ 
+</head>
+<body>
+  
+
+<div id="app">
+  <ul>
+    <li v-for="product in products">
+      {{ product.permalink_url }} <br>{{ product.id }} <br/>
+      <!-- <img :src="{{ product.picture }}" alt=""> -->
+
+      <!-- "https://scontent.xx.fbcdn.net/v/t1.0-9/s720x720/30740018_1890945980957628_3084012828944760832_o.jpg?_nc_cat=0&oh=b3263f57e923108d679a34f6cbbc3ded&oe=5B6D97E3" -->
+    </li>
+  </ul>
+</div>
+<script src="https://unpkg.com/vue"></script>
+<script>
+  
+  const app = new Vue({
+    el:'#app',
+    data:{
+      products:[]
+        
+    },
+    created(){
+      fetch('https://graph.facebook.com/v2.12/Javier.Aliaga.Rodriguez?fields=feed{description,picture,permalink_url,full_picture,comments},likes,description&access_token=EAACEdEose0cBAFuZA4f6vGDuEZARC2GkNYTHEi9NOqMG6LfEsOHgRffvuCxIDStXlYRbsXrZCzoXyf8CvsoPWNZCUv0JE0WOCx4qKviwVMOyguLgdEUcMaCZBlUWaiyRCwuT0etXqvhWwgOGSVtFZAjePcipWrro34QnADbnhV0tuoVrudan1B2ZAx0EKZBFBN8ZD')
+      .then(response => response.json())
+      .then(json=> {
+        this.products = json.feed.data
+      })
+
+    }
+  })
+</script>
+
+
+</body>
+</html>
