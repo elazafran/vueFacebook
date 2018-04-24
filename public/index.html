@@ -1,52 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<title>Document</title>
-	
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <title>Document</title>
 
-<script  src="https://code.jquery.com/jquery-1.12.4.js"  integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="  crossorigin="anonymous"></script> 
- 
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous"> -->
 
-<link rel="stylesheet" href="css/styles.css">
- 
+  <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="css/styles.css">
+
+
+  <!-- GET https://www.googleapis.com/plus/v1/activities?query=113050383214450284645&key=AIzaSyAQvl08XZJJtISydvZy6D4sDjFDmBQ1ZIs -->
+  <!-- clave api AIzaSyAQvl08XZJJtISydvZy6D4sDjFDmBQ1ZIs -->
 </head>
+
 <body>
-  
+  <h1>Feed Google Plus</h1>
+  <div class="lala"></div>
 
-<div id="app">
-  <ul>
-    <li v-for="product in products">
-      {{ product.permalink_url }} <br>{{ product.id }} <br/>
-      <!-- <img :src="{{ product.picture }}" alt=""> -->
+  <script src="https://apis.google.com/js/api.js"></script>
 
-      <!-- "https://scontent.xx.fbcdn.net/v/t1.0-9/s720x720/30740018_1890945980957628_3084012828944760832_o.jpg?_nc_cat=0&oh=b3263f57e923108d679a34f6cbbc3ded&oe=5B6D97E3" -->
-    </li>
-  </ul>
-</div>
-<script src="https://unpkg.com/vue"></script>
-<script>
-  
-  const app = new Vue({
-    el:'#app',
-    data:{
-      products:[]
-        
-    },
-    created(){
-      fetch('https://graph.facebook.com/v2.12/Javier.Aliaga.Rodriguez?fields=feed{description,picture,permalink_url,full_picture,comments},likes,description&access_token=EAACEdEose0cBAFuZA4f6vGDuEZARC2GkNYTHEi9NOqMG6LfEsOHgRffvuCxIDStXlYRbsXrZCzoXyf8CvsoPWNZCUv0JE0WOCx4qKviwVMOyguLgdEUcMaCZBlUWaiyRCwuT0etXqvhWwgOGSVtFZAjePcipWrro34QnADbnhV0tuoVrudan1B2ZAx0EKZBFBN8ZD')
-      .then(response => response.json())
-      .then(json=> {
-        this.products = json.feed.data
-      })
+  <script type="text/javascript">
+    var viejosID = [];
+    var nuevoID = [];
 
+    var nuevosID = [];
+    var resultado = [];
+    var items_a_eliminar = [];
+    var contador = 0;
+    document.addEventListener("DOMContentLoaded", function (event) {
+
+      leer();
+      setInterval(leer, 3000);
+      function leer() {
+        console.log(contador);
+        ++contador;
+        console.log(contador);
+        leer_json_facebook();
+        function leer_json_facebook(tokenfacebook, limitfacebook) {
+          // recogemos el token del input oculto uqe usamos para traernos del backend los datos
+          var tokenfacebook = $('[name=facebooktoken]').val();
+          var limitfacebook = $('[name=facebooklimit]').val();
+          var facebookPage = $('[name=facebookPage]').val();
+          //console.log('facebookPage =>>'+facebookPage);
+          $.ajax({
+
+            url: "https://www.googleapis.com/plus/v1/people/116285508904916101231/activities/public?key=AIzaSyAQvl08XZJJtISydvZy6D4sDjFDmBQ1ZIs",
+            //url: "https://graph.facebook.com/v2.12/"+facebookPage+"?fields=feed{created_time,message,description,picture,permalink_url,full_picture,comments.limit("+limitfacebook+")}&access_token="+tokenfacebook,
+            jsonp: "callback",
+            dataType: "jsonp",
+            success: function (response) {
+              respuestaAJAX(response);
+              //console.log(response);
+            }
+          });//cierre del ajax
+        }// cierre leer_json_facebook()
+        function respuestaAJAX(response) {
+          // variable para saber si pintar
+          var volverApintar;
+          // recorremos el json y guardamos los id
+          if (1 > viejosID.length) {
+            //console.log("rellenamos");
+            for (var i = 0; i < response['items'].length; i++) {
+              viejosID.push(response['items'][i]['object']['id']);
+            }
+          } else {
+            // borramos el array
+            while (nuevosID.length) {
+              nuevosID.pop();
+            }
+            // rellenamos el array de nuevos para poder comparar
+            for (var i = 0; i < response['items'].length; i++) {
+              nuevosID.push(response['items'][i]['id']);
+            }
+            console.log("nuevos id ==> " + nuevoID);
+            // guardamos el return de la funcion para tomar la decisión
+            volverApintar = comparar();
+          }
+          //console.log("volverApintar "+volverApintar);
+          if (!volverApintar)
+            pintar(response);
+
+        }// cierre respuestaAJAX()
+        function comparar() {
+          //limpiamos array
+          while (items_a_eliminar.length) {
+            items_a_eliminar.pop();
+          }
+
+          if (viejosID.length == nuevosID.length) {
+            $.each(viejosID, function (i, val) {
+              if ($.inArray(val, nuevosID) < 0) {
+                contador++;
+                items_a_eliminar.push(val);
+              }
+            });
+            //si la longuitud es distinta
+          } else {
+            $.each(viejosID, function (i, val) {
+              if ($.inArray(val, nuevosID) < 0) {
+                items_a_eliminar.push(val);
+                //console.log("diferencias =>"+val)
+              }
+            });
+          }
+          //console.log("ID´s a eliminar \n"+items_a_eliminar);
+          borrarVariorsElementosArray(items_a_eliminar);
+          //console.log(resultado);
+
+          if (0 == items_a_eliminar.length)
+            resultado = true;
+          else
+            resultado = false;
+
+          console.log("resultado==> " + resultado)
+          return resultado;
+
+        }//cierre comparar()
+        //la mejor manera para realizar un borrado múltiple de un Array debe ser de esta maner
+        // eliminamos desde el final
+        function borrarVariorsElementosArray(items_a_eliminar) {
+          for (var i = 0; i < items_a_eliminar.length; i++) {
+            console.log('borramos \n' + items_a_eliminar[i]);
+            $('#' + items_a_eliminar[i]).remove();
+
+          }
+          if (0 < items_a_eliminar.length)
+            anadirNuevos();
+        }//cierre borrarVariorsElementosArray()
+
+        // añadimos los nuevos
+        function anadirNuevos() {
+          //recorrremos cuantos haya que eliminar y añadimos del array nuevosID JSON
+          //console.log("para borrar=> "+items_a_eliminar);
+          //console.log("estos son los viejos "+viejosID);
+          items_a_eliminar.forEach(function (elemento, index) {
+            viejosID.unshift(nuevosID[index]);
+            viejosID.pop(items_a_eliminar[index]);
+          });
+        }// cierre anadirNuevos()
+        function pintar(response) {
+           if (nuevosID.length == 0) {
+             //primer evento y se imprimen todos
+             //console.log('esto hay que pintar ' + response);
+
+             for (var i = 0; i < response['items'].length; i++) {
+
+               var ainsertar = '';
+               //console.log("titulo =>>" + response['items'].length);
+
+               if (response['items'][i]['id']) {
+
+                 console.log("id =>" + response['items'][i]['id']);
+                 ainsertar += "<div class='feed' id='" + response['items'][i]['id'] + "'>";
+
+               }
+
+               // imagen del actor o propietario
+               if (response['items'][i]['actor']) {
+                 //console.log(response['items'][i]['actor']['image']['url']);
+                // ainsertar += "<div class='cabecera'><img class='actor' src='" + response['items'][i]['actor']['image']['url'] + "'/>";
+               }
+               // displayName del actor o propietario
+               if (response['items'][i]['actor']) {
+                 //console.log(response['items'][i]['actor']['displayName']);
+                 //ainsertar += "<span>" + response['items'][i]['actor']['displayName'] + "</span></div>";
+               }
+               if (response['items'][i]['object']['content']) {
+
+                 // console.log("id =>" + response['items'][i]['id']);
+                 ainsertar += "<p class='textoPublicacion'> " + response['items'][i]['object']['content'] + "</p>";
+
+               }
+
+               //recogemos la imagen
+               if (response['items'][i]['object']['attachments']) {
+                 //recorremos los adjuntos y vemos si hay más de un contenido
+
+                 var array = response['items'][i]['object']['attachments'].length;
+                 //console.log("array=> " + response['items'][i]['object']['attachments'].length);
+
+                 //comprobamos si es un grupo de imagenes o sino para recorrer o pintar una nada más
+                 if (response['items'][i]['object']['attachments'][0]['thumbnails']) {
+                   //console.log("entramos");
+                   for (let j = 0; j < response['items'][i]['object']['attachments'][0]['thumbnails'].length; j++) {
+                    // console.log("imagen =>" + response['items'][i]['object']['attachments'][0]['thumbnails'][j]['image']['url']);
+                     ainsertar += "<img src='" +response['items'][i]['object']['attachments'][0]['thumbnails'][j]['image']['url'] + "'/>";
+
+
+                   }
+                 }else {
+                   ainsertar += "<img class='img-responsive' src='" +response['items'][i]['object']['attachments'][0]['image']['url'] + "'/>";
+                 }
+
+
+
+               }
+               if (response['items']['updated']) {
+                 var fechaComentario = response['items']['updated'];
+                 console.log("hora convertida =>"+convertirHora(fechaComentario));
+                 var dt = new Date(fechaComentario);
+                 //extraemos el día mes y año
+                 var dia = dt.getDate();
+                 var mes = parseInt(dt.getMonth()) + 1;
+                 var ano = dt.getFullYear();
+                 var horas = dt.getHours();
+                 var minutos = dt.getMinutes();
+
+                 ainsertar += '<p class="textoPublicacion">' + dt.toLocaleString('es-ES', { hour: 'numeric', minute: 'numeric', hour12: true }) + '</p>';
+               }
+               else {
+                 //console.log("NOOOOOOOOOOOOOOO hay comentarios en este post");
+               }
+               ainsertar += '</div>';
+               jQuery('.googlepluslista').append(ainsertar);
+             }
+
+           } else {
+
+             console.log('¡¡¡¡¡¡¡¡¡¡ hay nuevosID !!!!!!!!!!!');
+             //cuando se han ido actualizando, sólo agregar los nuevos
+             for (var i = 0; i < contador; i++) {
+               if (response['items'][i]['object']['id']) {
+                 var ainsertar = '';
+                 ainsertar += "<div class='feed' id='" + response['items'][i]['object']['id'] + "'>";
+               }
+               if (response['items'][i]['object']['content']) {
+                  ainsertar += "<p class='textoPublicacion'> " + response['items'][i]['object']['content'] + "</p>";
+                }
+               if (response['items'][i]['object']['full_picture']) {
+                 ainsertar += "<img class='img-fluid' src='" + response['items'][i]['object']['full_picture'] + "'/>";
+               }
+               jQuery('.googlepluslista').prepend(ainsertar);
+             }//cierre del for si hay nuevosID
+           }//cierre del else
+         }//cierre pintar()
+          if (nuevosID.length == 0) {
+            //primer evento y se imprimen todos
+            //console.log('esto hay que pintar ' + response);
+
+            for (var i = 0; i < response['feed']['data'].length; i++) {
+              var ainsertar = '';
+
+              if (response['feed']['data'][i]['id']) {
+                ainsertar += "<div class='feed' id='" + response['feed']['data'][i]['id'] + "'>";
+              }
+              if (response['feed']['data'][i]['created_time']) {
+                var fechaComentario = response['feed']['data'][i]['created_time'];
+                var dt = new Date(fechaComentario);
+                //extraemos el día mes y año
+                var dia = dt.getDate();
+                var mes = parseInt(dt.getMonth()) + 1;
+                var ano = dt.getFullYear();
+                var horas = dt.getHours();
+                var minutos = dt.getMinutes();
+
+                //ainsertar+='<p class="textoPublicacion">'+dt.toLocaleString('es-ES', { hour: 'numeric', minute: 'numeric', hour12: true })+'</p>';
+              }
+              if (response['feed']['data'][i]['message']) {
+                ainsertar += '<p class="textoPublicacion">' + response['feed']['data'][i]['message'] + '</p>';
+              }
+              if (response['feed']['data'][i]['description']) {
+                ainsertar += '<h5>' + response['feed']['data'][i]['description'] + '</h5>';
+              }
+              if (response['feed']['data'][i]['full_picture']) {
+                ainsertar += "<img class='img-fluid' src=" + response['feed']['data'][i]['full_picture'] + ">";
+              }
+              if (response['feed']['data'][i]['comments']) {
+
+                comentarios = response['feed']['data'][i]['comments']['data'].length;
+
+                var listarComentarios = '<div class="divComentario">';
+
+                for (var k = 0; k < comentarios; k++) {
+
+                  var fechaComentario = response['feed']['data'][i]['comments']['data'][k]['created_time'];
+                  var dt = new Date(fechaComentario);
+                  //extraemos el día mes y año
+                  var dia = dt.getDate();
+                  var mes = parseInt(dt.getMonth()) + 1;
+                  var ano = dt.getFullYear();
+                  var horas = dt.getHours();
+                  var minutos = dt.getMinutes();
+                  //escribimos la fecha en un formato legible
+                  listarComentarios += '<div class="indivualComentario"><p class="fecha">' + dt.toLocaleString('es-ES', { hour: 'numeric', minute: 'numeric', hour12: true }) + '</p><p class="textoComentario">' + response['feed']['data'][i]['comments']['data'][k]['message'] + '</p></div><hr/>';
+
+                  // comentarios anidados
+                  if (response['feed']['data'][i]['comments']) {
+                    for (var j = 0; j < comentarios; j++) {
+
+                    }
+                  } // fin de comentarios anidados
+                }
+                ainsertar += listarComentarios + '</div>';
+
+              } else {
+                //console.log("NOOOOOOOOOOOOOOO hay comentarios en este post");
+              }
+
+              //ainsertar+='<hr>';
+              jQuery('.facebookLista').append(ainsertar);
+            }
+
+          } else {
+
+            console.log('hay nuevosID - pintamos');
+            //cuando se han ido actualizando, sólo agregar los nuevos
+            for (var i = 0; i < contador; i++) {
+              if (response['feed']['data'][i]['id']) {
+                var ainsertar = '';
+                ainsertar += "<div class='feed' id='" + response['feed']['data'][i]['id'] + "'>";
+              }
+              if (response['feed']['data'][i]['message']) {
+                ainsertar += '<p class="textoPublicacion">' + response['feed']['data'][i]['message'] + '</p>';
+              }
+              if (response['feed']['data'][i]['full_picture']) {
+                ainsertar += "<img class='img-fluid' src=" + response['feed']['data'][i]['full_picture'] + ">";
+              }
+              ainsertar += '</div>'
+              jQuery('.facebookLista').prepend(ainsertar);
+            
+          }//cierre del else
+        }//cierre pintar()
+      }//cierre leer()
+    });//cierre principal
+    function convertirHora(fecha) {
+
+      var dt = new Date(fecha);
+      //extraemos el día mes y año
+      var dia = dt.getDate();
+      var mes = parseInt(dt.getMonth()) + 1;
+      var ano = dt.getFullYear();
+      var horas = dt.getHours();
+      var minutos = dt.getMinutes();
+
+      return dt.toLocaleString('es-ES', { hour: 'numeric', minute: 'numeric', hour12: true });
     }
-  })
-</script>
-
+  </script>
+  <div class="googlepluslista"></div>
 
 </body>
+
 </html>
