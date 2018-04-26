@@ -45,6 +45,7 @@
                         jsonp: "callback",
                         dataType: "json",
                         success: function (response) {
+                            console.log(response);
                             responseGlobal = response;
                             console.log("blu = " + responseGlobal['items'].length + "\nblu2 = " + response['items'].length);
                             console.log("responseGlobal\n" + responseGlobal);
