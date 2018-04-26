@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script
+        src="http://code.jquery.com/jquery-1.12.4.js"
+        integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+        crossorigin="anonymous"></script>
     <title>Document</title>
 </head>
 
@@ -12,24 +16,43 @@
     <script>
 
         var indices = [];
-
         var array = ['a', 'b', 'a', 'c', 'a', 'd'];
-
         var element = 'a';
-
         var idx = array.indexOf(element);
 
         while (idx != -1) {
-
             indices.push(idx);
-
             idx = array.indexOf(element, idx + 1);
-
         }
-
         console.log(indices);
 
-// [0, 2, 4]
+        // [0, 2, 4]
+
+        var viejosID = ['z13zhjvhdzbqwf4yg04cfpng1ziqwtrwcuo0k','z12kunpaaxuzht42j22xgv0jvprahz2ap04','z12bthkowpnpfvdyo04cfpng1ziqwtrwcuo0k'];
+        var nuevosID = ['z13zhjvhdzbqwf4yg04cfpng1ziqwtrwcuo0k','z12kunpaaxuzht42j22xgv0jvprahz2ap04','z12bthkowpnpfvdyo04cfpng1ziqwtrwcuo0k','11111'];
+
+        
+        var resultado = [];
+        var items_a_agregar = [];
+
+        $.each(nuevosID, function (i, val) {
+            if ($.inArray(val, viejosID) < 0) {
+                items_a_agregar.push(val);
+                console.log("diferencias =>" + val)
+            }
+        });
+
+         console.log("viejosID =>" + viejosID+"\n");
+         console.log("nuevosID =>" + nuevosID);
+         console.log("items_a_agregar =>" + items_a_agregar);
+
+         items_a_agregar.forEach(element => {
+             viejosID.push(element);
+         });
+
+         console.log("MODIFICADOS viejosID =>" + viejosID+"\n");
+
+
     </script>
 </body>
 
