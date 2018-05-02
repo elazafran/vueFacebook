@@ -17,8 +17,10 @@
     "vinyl-ftp": "^0.6.1"
   },
   "dependencies": {
+    "install": "^0.11.0",
     "npm": "^5.8.0",
-    "npm-install-all": "^1.1.21"
+    "npm-install-all": "^1.1.21",
+    "update": "^0.7.4"
   },
   "repository": {
     "type": "git",

@@ -28,15 +28,12 @@
             leer();
             setInterval(leer, 15000);
             function leer() {
-
                 leer_json_googleplus();
                 function leer_json_googleplus(tokenfacebook, limitfacebook) {
                     // borramos el array
                     while (items_a_agregar.length) { items_a_agregar.pop(); }
                     while (items_a_eliminar.length) { items_a_eliminar.pop(); }
                     while (nuevosID.length) { nuevosID.pop(); }
-
-
                     // recogemos el token del input oculto uqe usamos para traernos del backend los datos
                     $.ajax({
                         //https://plus.google.com/116285508904916101231
@@ -56,14 +53,12 @@
 
 
                 function respuestaAJAX(response) {
-
                     //console.log(response);
                     // variable para saber si pintar
                     //var volverApintar;
-
                     // recorremos el json y guardamos los id
                     if (viejosID.length == 0) {
-                        console.log("rellenamos");
+                       // console.log("rellenamos");
                         for (var i = 0; i < response['items'].length; i++) {
                             viejosID.push(response['items'][i]['id']);
                             console.log("metemos en el id viejo" + response['items'][i]['id']);
@@ -72,15 +67,14 @@
                         // rellenamos el array de nuevos para poder comparar
                         for (var i = 0; i < response['items'].length; i++) {
                             nuevosID.push(response['items'][i]['id']);
-
                         }
                         // guardamos el return de la funcion para tomar la decisión
                         volverApintar = comparar();
                     }
                     //console.log("volverApintar "+volverApintar);
-                    if (!volverApintar)
+                    if (!volverApintar){
                         pintar(response);
-
+                    }
                 }// cierre respuestaAJAX()
 
                 function comparar() {
